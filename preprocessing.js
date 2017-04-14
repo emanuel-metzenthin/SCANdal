@@ -1,9 +1,11 @@
 
 var Jimp  = require('jimp'); //evtl auf Grafi umsteigen
 var Tesseract = require('tesseract.js');
-var PerTra = require('perspective-transform');
+var PerspT = require('perspective-transform');
+var getPixels = require('get-pixels');
+//var Tracking = require('tracking');
 
-// Image Preprocessing
+//Image Processing
 Jimp.read('kassenbon.jpg', function(err, img){
 
 	// Manuel page recognition
@@ -19,7 +21,7 @@ Jimp.read('kassenbon.jpg', function(err, img){
 
 	var pointsAfter = [0, 0, receiptWidth, 0, receiptWidth, receiptHeight, 0, receiptHeight];
 
-	var perspT = PerTra(pointsBefore, pointsAfter);
+	var perspT = PerspT(pointsBefore, pointsAfter);
 
 	for(var x=0; x<receiptWidth; x++){
 		for (var y = 0; y < receiptHeight; y++) {
@@ -29,20 +31,15 @@ Jimp.read('kassenbon.jpg', function(err, img){
 
 	}
 
-	var scalingFactor = 2000 / img.height; // ??
+	var scalingFactor = Math.ceil(3000 / receiptHeight);
 
 	img.scale(3);
 
 	img.greyscale();
 
-	img.color([
-    { apply: 'shade', params: [ 0] }
-	]);
-
-	//img.contrast(0.3);
-
 	img.crop(0, 0, receiptWidth*3, receiptHeight*3);
 
+	//img.contrast(0.5);
 
 	img.write('kassenbon-processed.jpg');
 });
