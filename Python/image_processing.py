@@ -2,18 +2,18 @@ import cv2
 import numpy as np
 
 def warp(contour, image):
-	return cv2.warpPerspective(image, cv2.getPerspectiveTransform(contour, np.array([0, 0, 499, 0, 499, 499, 0, 499])), (500, 500))
+	return cv2.warpPerspective(image, cv2.getPerspectiveTransform(np.array(contour, dtype='float32'), np.array([[499, 0], [0, 0], [0, 499], [499, 499]], dtype='float32')), (500, 500))
 
 image = cv2.imread('../kassenbon-dark.jpg', 0)
 cv2.namedWindow('Input', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Input', 400, 700)
 cv2.imshow('Input', image)
 
-image = cv2.GaussianBlur(image, (5, 5), 0)
+warped = cv2.GaussianBlur(image, (5, 5), 0)
 #output = cv2.Canny(image, 30, 100)	
-_, output = cv2.threshold(image, 0, 255, cv2.THRESH_OTSU)
+_, warped = cv2.threshold(image, 0, 255, cv2.THRESH_OTSU)
 
-(_, cnts, _) = cv2.findContours(output.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+(_, cnts, _) = cv2.findContours(warped.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:5]
 screenCnt = cnts[0]
 for c in cnts:
@@ -27,8 +27,14 @@ for c in cnts:
 		screenCnt = approx
 		break
 
-output = cv2.cvtColor(output, cv2.COLOR_GRAY2RGB)
-cv2.drawContours(output, [screenCnt], -1, (0, 0, 255), 2)
+
+warped = warp(screenCnt, image)
+
+output = deskew(warped)
+
+#output = cv2.cvtColor(output, cv2.COLOR_GRAY2RGB)
+#cv2.drawContours(output, [screenCnt], -1, (0, 0, 255), 2)
+
 
 cv2.namedWindow('Output', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Output', 400, 700)
