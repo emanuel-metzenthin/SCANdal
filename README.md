@@ -4,4 +4,4 @@ The goal of this experimentation was to extract text from paper receipts. The fi
 
 Progress so far:
 
-![Progress of warping image](progess.jpg)
+![Progress of warping image](/progress.jpg)
